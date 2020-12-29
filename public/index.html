@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Wizard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="start.css">
+        <link rel="stylesheet" href="end.css">
+        <link rel="stylesheet" href="index.css">
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+        <script src="start.js"></script>
+        <script src="end.js"></script>
+        <script src="index.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <div id="overlay">Hoppla! Dein Bildschirm ist etwas zu klein! Vielleicht hilft ja Querformat...?</div>
+        <div id="mainpanel" v-show="mainPanelShown" :style="isMainPanelVisible" style="opacity:0">
+            <div id="control-panel" class=>
+                <div id="control-info">
+                    <div id="control-info-round">Runde:<span>{{ round + 1 }} / {{ rounds }}</span></div>
+                    <div id="control-info-trumps">Trumpf:<span>{{ trumpLabel }}</span></div>
+                </div>
+                <div id="control-tricks">
+                    <input v-if="trumpToken == ''" type="range" step="1" min="0" :max="round + 1" v-model.number="selectedTricks" @input="transmitTrickCount" :disabled="gameStatus != 1" :class="(gameStatus == 1) ? 'openInput' : 'lockedInput'">
+                    <label v-if="trumpToken == ''">{{ selectedTricks }}</label>
+                    <div id="color-choice" v-if="trumpToken != ''">
+                        <div style="background-color:#f44336;border-color:#f44336" @click="transmitTrump('r')" :style="chosenTrumpColor == 'r' ? {'border-color':'#fff'} : {}"></div>
+                        <div style="background-color:#ffeb3b;border-color:#ffeb3b" @click="transmitTrump('y')" :style="chosenTrumpColor == 'y' ? {'border-color':'#fff'} : {}"></div>
+                        <div style="background-color:#8bc34a;border-color:#8bc34a" @click="transmitTrump('g')" :style="chosenTrumpColor == 'g' ? {'border-color':'#fff'} : {}"></div>
+                        <div style="background-color:#2196f3;border-color:#2196f3" @click="transmitTrump('b')" :style="chosenTrumpColor == 'b' ? {'border-color':'#fff'} : {}"></div>
+                    </div>
+                    <button @click="confirmTrumpTricks" :disabled="gameStatus != 1 && trumpToken == ''" :class="(gameStatus == 1) ? 'openInput' : ((trumpToken != '') ? 'openInput' : 'lockedInput')">OK</button>
+                </div>
+                <div id="chat">
+                    <div id="chat-messages">
+                        <div class="chat-message">
+                            <b>Willkommen im Spieler-Chat!</b>
+                        </div>
+                        <div class="chat-message" v-for="msg in chat">
+                            <b>{{ msg.author }}:</b> {{ msg.message }}
+                        </div>
+                    </div>
+                    <input type="text" @keyup.enter="sendChatMessage($event)" placeholder="Deine Nachricht">
+                </div>
+                <div id="control-buttons">
+                    <button id="control-quit-game" @click="leaveGame" style="background:#6ca25a">Spiel verlassen</button>
+                    <button v-if="isHost" :disabled="pausing" :class="pausing ? 'lockedInput' : 'openInput'" id="control-pause-game" @click="pauseGame($event)">Spiel pausieren</button>
+                    <button v-if="isHost" :disabled="ending" :class="ending ? 'lockedInput' : 'openInput'" id="control-end-game" @click="endGame($event)">Spiel auswerten</button>
+                </div>
+            </div>
+            <div id="center-panel">
+                <div id="center-info">
+                    <div id="center-info-title" :class="{ titleUpdating: isTitleChanging }">{{ title }}</div>
+                    <div id="center-info-subtitle" :class="{ titleUpdating: isSubtitleChanging }">{{ subtitle }}</div>
+                </div>
+                <div id="timer" :style="{ transitionDuration: timer }" :class="{ active: timerActive, visible: timerVisible }"></div>
+                <div id="center-cardslots">
+                    <div class="center-cardslot" v-for="n in players.length">
+                        <div 
+                            class="center-card" 
+                            :class="{ shown: cardsOnTable[n - 1] != undefined && cardsOnTableShown, winning: getWinningCardIndex(cardsOnTable.concat([])) == n - 1 }"
+                            :style="{ backgroundImage: 'url(cards/' + tableCards[n - 1] + '.png)' }"
+                        ></div>
+                    </div>
+                </div>
+                <transition-group id="center-labels" tag="div" name="transgrp-playerlabel">
+                    <div class="center-label" v-for="name in playerLabels" :key="name + players.indexOf(name)">{{ name }}</div>
+                </transition-group>
+            </div>
+            <div id="player-panel">
+                <div id="player-records">
+                    <div class="player-record" v-for="n in players.length" :class="{ active: n - 1 == playerOnTurn }" :style="{ backgroundColor: players[n - 1].color[0] }">
+                        <div class="player-record-name">{{ playerName(n - 1) }}</div>
+                        <div class="player-record-data" :style="{ backgroundColor: players[n - 1].color[1] }">
+                            <div class="player-record-data-tricks">{{ players[n - 1].tricks}} / {{ players[n - 1].predictedTricks }}</div>
+                            <div class="player-record-data-credits">{{ players[n - 1].credits.toFixed(0) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="card-panel" :class="{ visible: cardsVisible, unfold: cardsUnfolded }">
+                <transition-group name="transgrp-cardpanel" tag="div" id="card-slot-wrapper">
+                    <div class="card-slot" v-for="(value, key) in cards" :key="key" :style="getCardRotation">
+                        <div 
+                            class="card" 
+                            :style="getCardImage(key)" 
+                            :class="{ flipped: !cardsShown, active: gameStatus == 2, selected: cards[key] === selectedCard, forbidden: !canPick(key) }" 
+                            @mouseover="transmitCardIndex(key)" 
+                            @click="confirmCard(key)"
+                        ></div>
+                    </div>
+                </transition-group>
+            </div>
+        </div>
+        <div id="startpanel" v-show="startPanelShown" :style="isStartPanelVisible" style="opacity:0;display:none">
+            <div>
+                <div id="nick-panel" :style="panelShown(0)">
+                    <div id="nick-header">W&auml;hle deinen Nickname!</div>
+                    <div id="nick-quickjoin" v-if="canRejoin">
+                        <span>Du nimmst bereits an einem Spiel teil!</span>
+                        <div id="nick-quickjoin-preview">
+                            <div id="nick-quickjoin-header">{{ rejoinData.tableName }} (Runde {{ rejoinData.round + 1 }})</div>
+                            <div id="nick-quickjoin-players">{{ rejoinData.players.join(', ') }}</div>
+                        </div>
+                        <button :disabled="shownSmallPanel != 0" :class="(shownSmallPanel == 0) ? 'openInput' : ''" @click="confirmRejoin(true)">Wieder beitreten</button>
+                        <button :disabled="shownSmallPanel != 0" :class="(shownSmallPanel == 0) ? 'openInput' : ''" @click="confirmRejoin(false)">Ignorieren</button>
+                    </div>
+                    <div id="nick-input" v-if="!canRejoin">
+                        <input type="text" :disabled="shownSmallPanel != 0" v-model="nickname" maxlength="15">
+                        <button :disabled="shownSmallPanel != 0" :class="(shownSmallPanel == 0) ? 'openInput' : ''" @click="confirmNick">Weiter</button>
+                    </div>
+                    <div id="nick-instructions">
+                        <span>Du wei&szlig;t nicht, wie man spielt?</span>
+                        <button :class="(shownSmallPanel == 0) ? 'openInput' : ''" @click="instructions">Anleitung</button>
+                    </div>
+                </div>
+                <div id="lobby-panel" :style="panelShown(1)">
+                    <div id="lobby-header">W&auml;hle eine Lobby!</div>
+                    <div id="lobby-lobbylist">
+                        <div 
+                            class="lobby" 
+                            v-for="n in lobbydata.length" 
+                            @click="selectLobby(n - 1)" 
+                            :class="[(shownSmallPanel != 1) ? '' : ((!(lobbyState(n - 1) == 'voll' || lobbyState(n -1) == 'im Spiel' || lobbyState(n-1) == 'gebannt')) ? 'openInput' : 'lockedInput'), (selectedLobby == n - 1) ? 'active' : '']"
+                        >
+                            <div class="lobby-name">{{ lobbydata[n - 1].name }}</div>
+                            <div class="lobby-state">{{ lobbyState(n - 1) }}</div>
+                        </div>
+                    </div>
+                    <button 
+                        id="lobby-confirm" 
+                        :disabled="shownSmallPanel != 1" 
+                        @click="confirmLobby"
+                        :class="(shownSmallPanel != 1) ? '' : (lobbyChosen() ? 'openInput' : 'lockedInput')"
+                    >Lobby ausw&auml;hlen</button>
+                </div>
+                <div id="preparation-panel" :style="panelShown(2)">
+                    <div id="prep-header" v-if="isHost">Warte auf Spieler...</div>
+                    <div id="prep-header" v-else>Warte auf den Host...</div>
+                    <div id="prep-rounds">
+                        <input type="range" step="1" min="1" :max="maxRoundsMap" v-if="isHost" v-model.number="selectedMaxRounds" :disabled="shownSmallPanel != 2" @input="updateMaxRounds" :class="(shownSmallPanel == 2) ? 'openInput' : ''">
+                        <label>Max. Runden: {{ maxRounds }}</label>
+                    </div>
+                    <div id="prep-playerlist" v-show="lobbyPlayers.length > 0">
+                        <div class="player-entry" v-for="n in lobbyPlayers.length">
+                            <div class="player-entry-name">{{ playerName(n - 1) }}</div>
+                            <button class="player-entry-kick" v-if="isHost && !(lobbyPlayers[n - 1].isHost)" :disabled="shownSmallPanel != 2" @click="kickPlayer(n - 1)">Kick</button>
+                        </div>
+                    </div>
+                    <button id="prep-bot" :disabled="shownSmallPanel != 2" v-if="isHost" @click="addBot" :class="(shownSmallPanel != 2) ? '' : ((lobbyPlayers.length < 6) ? 'openInput' : 'lockedInput')">Bot hinzufügen</button>
+                    <button id="prep-back" :disabled="shownSmallPanel != 2" @click="backToLobbies" :class="(shownSmallPanel == 2) ? 'openInput' : ''">Zur&uuml;ck</button>
+                    <button id="prep-start" :disabled="shownSmallPanel != 2" v-if="isHost" @click="startGame" :class="(shownSmallPanel != 2) ? '' : ((lobbyPlayers.length >= 3) ? 'openInput' : 'lockedInput') ">Starte das Spiel</button>
+                </div>
+            </div>
+        </div>
+        <div id="endpanel" v-show="endPanelShown" :style="isEndPanelVisible" style="opacity:0">
+            <div id="winner-row">
+                <div class="endslot" v-for="winner in winners" :class="getPlayerStyle(winner.place)">
+                    <div class="endname" :style="{ backgroundColor: winner.color[0] }">{{ winner.name }}</div>
+                    <div class="endcredits" :style="{ backgroundColor: winner.color[1] }">{{ winner.credits }}</div>
+                    <div class="endplace">{{ (winner.place + 1) + '. Platz' }}</div>
+                </div>
+            </div>
+            <div id="loser-row" v-if="losers.length > 0">
+                <div class="endslot" v-for="loser in losers">
+                    <div class="endname" :style="{ backgroundColor: loser.color[0] }">{{ loser.name }}</div>
+                    <div class="endcredits" :style="{ backgroundColor: loser.color[1] }">{{ loser.credits }}</div>
+                    <div class="endplace">{{ (loser.place + 1) + '. Platz' }}</div>
+                </div>
+            </div>
+            <button id="quit" @click="quitGame">Verlassen</button>
+        </div>
+        <div id="infopanel" v-show="infoPanelShown" :style="isInfoPanelVisible" style="opacity:0">{{ info }}</div>
+    </body>
+</html>

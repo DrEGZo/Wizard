@@ -1,0 +1,781 @@
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    overflow: hidden;
+}
+
+button, input[range] {
+    background-color: #888;
+}
+
+input[range] {
+    background-color: #777;
+}
+
+button:focus, input {
+    outline: none;
+    min-width: 0;
+}
+
+#overlay {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    background-color: #333;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding: 5px;
+}
+
+#mainpanel {
+    background-color: #333;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 200vh;
+    max-height: 50vw;
+    transition: opacity 0.8s;
+}
+
+#control-panel {
+    position: absolute;
+    background-color: #333;
+    width: 20%;
+    height: 70%;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#center-panel {
+    position: absolute;
+    background-color: #333;
+    width: 60%;
+    height: 70%;
+    top: 0;
+    left: 20%;
+    display: flex;
+    flex-direction: column;
+}
+
+#player-panel {
+    position: absolute;
+    background-color: #333;
+    width: 20%;
+    height: 70%;
+    top: 0;
+    left: 80%;
+}
+
+#card-panel {
+    position: absolute;
+    background-color: #333; 
+    width: 90%;
+    height: 30%;
+    top: 70%;
+    left: 0;
+    display: flex;
+    align-items: center;
+    margin: 0 5%;
+}
+
+#center-cardslots {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.center-cardslot {
+    border: 5px dashed #555;
+    border-radius: 20px;
+}
+
+.center-card {
+    width: 8vw;
+    max-width: 16vh;
+    height: 24vh;
+    max-height: 12vw;
+    background-size: cover;
+    background-position: center;
+    background-image: url('cards/back.png');
+    margin: 3px;
+    border-radius: 15px;
+    transform: translateY(-20%);
+    transition: opacity 0.3s ease-in, transform 0.3s ease-in, box-shadow 0.5s;
+    opacity: 0;
+    box-shadow: 0 0 20px 1px #000;
+}
+
+.center-card.shown {
+    opacity: 1;
+    transform: translateY(0%);
+}
+
+.center-card.winning {
+    box-shadow: 0 0 20px 1px #0fbb0f;
+}
+
+#center-labels {
+    display: flex;
+    margin-top: 10px;
+}
+
+.center-label {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+}
+
+.transgrp-playerlabel-move {
+    transition: transform 0.5s ease-in-out;
+}
+
+#player-records {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    margin: 0 30px 0 30px;
+}
+
+.player-record {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 3px solid #333;
+    transition: border 0.5s;
+}
+
+.player-record.active {
+    border: 3px solid #fff;
+}
+
+.player-record-name {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    padding: 3px 8px;
+}
+
+.player-record-data {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 8px;
+}
+
+.player-record-data-tricks {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.player-record-data-credits {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#center-info {
+    margin-bottom: 4%;
+    margin-top: 3%;
+    background-color: #555;
+    padding: 5px;
+    border: 3px solid #ccc;
+    height: 11%;
+}
+
+#center-info-title {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 23px;
+    font-weight: 600;
+    transition: transform 0.25s;
+    height: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#center-info-subtitle {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    transition: transform 0.25s;
+    height: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.titleUpdating {
+    transform: rotateX(90deg);
+}
+
+#timer {
+    height: 5px;
+    background-color: #81d400;
+    width: 100%;
+    margin-bottom: 8%;
+    border-radius: 5px;
+    opacity: 0;
+}
+
+#timer.active {
+    width: 0;
+    background-color: #ff4800;
+    transition: width linear, background cubic-bezier(1, 0, 1, 1), opacity 1s;
+}
+
+#timer.visible {
+    opacity: 1;
+}
+
+#card-slot-wrapper {
+    width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    transition: width 1s ease-in-out, opacity 0.5s;
+    opacity: 0;
+    position: relative;
+}
+
+.card-slot {
+    width: 0;
+    transition: transform 1s ease-in-out;
+}
+
+.transgrp-cardpanel-leave-active {
+    position: absolute;
+    transition: 0s;
+}
+
+.transgrp-cardpanel-move {
+    transition: transform 0.5s;
+}
+
+.card {
+    width: 8vw;
+    max-width: 16vh;
+    height: 24vh;
+    max-height: 12vw;
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    transform: translateX(-50%);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-out, box-shadow 0.5s;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('cards/backflipped.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0s linear 0.5s;
+}
+
+.card.flipped::before {
+    opacity: 1;
+}
+
+@media (pointer: fine) {
+    .card.active:hover:not(.selected):not(.forbidden) {
+        transform: translate(-50%, -20%);
+    }    
+}
+
+.card.selected {
+    transform: translate(-50%, -60%);
+    opacity: 0;
+}
+
+#control-info {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    text-align: center;
+    background-color: #555555;
+    line-height: 1.5;
+    width: 75%;
+    border-radius: 10px;
+}
+
+#control-info-round span {
+    float: right;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 50%;
+    border-top-right-radius: 10px;
+}
+
+#control-info-trumps span {
+    float: right;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 50%;
+    border-bottom-right-radius: 10px;
+}
+
+#control-tricks {
+    width: 75%;
+    display: flex;
+    align-items: center;
+}
+
+#control-tricks input {
+    -webkit-appearance: none;
+    width: 50%;
+    height: 5px;
+    opacity: 1;
+    border-radius: 10px;
+    margin: 0;
+}
+
+#control-tricks input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#control-tricks input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#control-tricks label {
+    width: 25%; 
+    display: inline-block;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    text-align: center;
+}
+
+#control-tricks button {
+    width: 25%;
+    border: none;
+    background-color: #888;
+    color: #fff;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+#color-choice {
+    width: 65%;
+    margin: 0 5%;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 0 15px 5px #0fbb0f;
+    border-radius: 13px;
+}
+
+#color-choice div {
+    width: 25%;
+    border-style: solid;
+    border-width: 3px;
+    transition: border 0.3s;
+}
+
+#color-choice div:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#color-choice div:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#color-choice div::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+#control-buttons {
+    width: 75%;
+    border-radius: 10px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+#control-buttons button {
+    width: 100%;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 3px;
+    margin: 0;
+}
+
+#control-buttons button:not(:last-child) {
+    border-bottom: 1px solid #fff;
+}
+
+#chat {
+    height: 30%;
+    width: 75%;
+    background-color: #888;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#chat-messages {
+    background-color: #888;
+    padding: 5px;
+    flex: 17;
+    overflow: auto;
+}
+
+#chat-messages::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+#chat-messages::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+  background: #b3b3b3;
+  border: none;
+  border-radius: 7px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+  background: #555;
+  border: none;
+  border-radius: 0px;
+}
+
+.chat-message {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.chat-message:not(:last-child)::after {
+    content: "";
+    display: block;
+    border-top: 1px solid #a9a9a9;
+    width: 100%;
+    margin: 1px auto;
+}
+
+#chat input {
+    width: 96%;
+    border: none;
+    background-color: #6ca25a;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    padding: 3px 2%;
+}
+
+#chat input::placeholder {
+    color: #ccc;
+}
+
+#card-panel.visible #card-slot-wrapper {
+    opacity: 1;
+}
+
+#card-panel.unfold #card-slot-wrapper {
+    width: 100%;
+}
+
+.lockedInput {
+    background-color: #a25a5a;
+}
+
+.openInput {
+    background-color: #6ca25a;
+}
+
+@media screen and (max-width: 1200px), screen and (max-height: 600px) {
+    .center-cardslot {
+        border: 4px dashed #555;
+        border-radius: 15px;
+    }
+
+    .center-card {
+        border-radius: 10px;
+    }
+
+    .center-card.winning {
+        box-shadow: 0 0 15px 1px #0fbb0f;
+    }
+
+    .center-label {
+        font-weight: 500;
+    }
+
+    #center-info-title {
+        font-size: 20px;
+    }
+
+    #center-info-subtitle {
+        font-size: 14px;
+    }
+
+    .card {
+        border-radius: 10px;
+    }
+}
+
+@media screen and (max-width: 992px), screen and (max-height: 496px) {
+    .center-cardslot {
+        border: 3px dashed #555;
+        border-radius: 10px;
+    }
+
+    .center-card {
+        border-radius: 5px;
+    }
+
+    .center-label {
+        font-size: 14px;
+    }
+
+    #player-records {
+        margin: 0 25px 0 15px;
+    }
+
+    .player-record {
+        border-radius: 10px;
+        border: 2px solid #333;
+    }
+
+    .player-record.active {
+        border: 2px solid #fff;
+    }
+
+    .player-record-name {
+        font-weight: 500;
+        padding: 2px 4px;
+        font-size: 12px;
+    }
+
+    .player-record-data {
+        padding: 2px 4px;
+        font-size: 12px;
+    }
+
+    #center-info-title {
+        font-size: 16px;
+    }
+
+    #center-info-subtitle {
+        font-size: 12px;
+    }
+
+    .card {
+        border-radius: 5px;
+    }
+
+    #control-info {
+        font-size: 12px;
+    }
+
+    #control-tricks input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 15px;
+        height: 15px;
+        border-radius: 10px;
+    }
+
+    #control-tricks input::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        border-radius: 10px;
+    }
+
+    #control-tricks button {
+        padding: 2px;
+        font-size: 12px;
+    }
+
+    #control-buttons button {
+        font-size: 12px;
+        padding: 3px;
+    }
+
+    #chat-messages {
+        padding: 2px;
+    }
+
+    #chat-messages::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    }
+
+    #chat-messages::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    }
+
+    .chat-message {
+        font-size: 10px;
+    }
+
+    #chat input {
+        font-size: 10px;
+    }
+}
+
+@media screen and (max-width: 768px), screen and (max-height: 384px) {
+    .center-cardslot {
+        border: 1px dashed #555;
+        border-radius: 8px;
+    }
+
+    .center-card {
+        margin: 2px;
+    }
+
+    .center-card.winning {
+        box-shadow: 0 0 10px 1px #0fbb0f;
+    }
+
+    #center-labels {
+        margin-top: 3px;
+    }
+
+    .center-label {
+        font-size: 10px;
+    }
+
+    #player-records {
+        margin: 0 5px;
+    }
+
+    .player-record {
+        border-radius: 5px;
+        border: 1px solid #333;
+    }
+
+    .player-record.active {
+        border: 1px solid #fff;
+    }
+
+    #center-info {
+        padding: 3px;
+        border: 1px solid #ccc;
+    }
+
+    #center-info-title {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    #center-info-subtitle {
+        font-size: 8px;
+    }
+
+    #timer {
+        height: 3px;
+        border-radius: 0px;
+    }
+
+    #control-info {
+        font-size: 8px;
+        border-radius: 5px;
+    }
+
+    #control-info-round span {
+        border-top-right-radius: 5px;
+    }
+
+    #control-info-trumps span {
+        border-bottom-right-radius: 5px;
+    }
+
+    #control-tricks input {
+        height: 3px;
+        border-radius: 0px;
+    }
+
+    #control-tricks input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    #control-tricks input::-moz-range-thumb {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    #control-tricks label {
+        font-size: 10px;
+    }
+
+    #control-tricks button {
+        border-radius: 5px;
+        padding: 1px;
+        font-size: 8px;
+    }
+
+    #control-buttons {
+        border-radius: 5px;
+    }
+
+    #control-buttons button {
+        font-size: 8px;
+        padding: 2px;
+    }
+
+    #chat-messages::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+
+    #chat-messages::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+    }
+
+    .chat-message {
+        font-size: 8px;
+    }
+
+    #chat input {
+        font-size: 8px;
+    }
+}
+
+@media screen and (max-width: 450px), screen and (max-height: 225px) {
+    #overlay {
+        display: flex;
+    }
+}

@@ -1,0 +1,524 @@
+#startpanel {
+    background-color: #333;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 200vh;
+    max-height: 50vw;
+    transition: opacity 0.8s;
+}
+
+#infopanel {
+    width: 100%;
+    height: 100%;
+    max-width: 200vh;
+    max-height: 50vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
+    font-style: italic;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    transition: opacity 0.8s;
+}
+
+#startpanel::before {
+    content: "Willkommen!";
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: 20%;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+    font-weight: 700;
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#startpanel>div {
+    position: absolute;
+    width: 100%;
+    height: 80%;
+    top: 20%;
+    display: flex;
+}
+
+#nick-panel, #lobby-panel, #preparation-panel {
+    flex: 1;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    margin: 10px;
+    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    transition: opacity 0.7s;
+}
+
+#nick-header, #lobby-header, #prep-header {
+    color: #fff;
+    text-align: center;
+    font-size: 28px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+    font-weight: 600;
+}
+
+#nick-input {
+    display: flex;
+    width: 100%;
+}
+
+#nick-input input {
+    flex: 4;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    background-color: #bbb;
+    color: #fff;
+    width: 100%;
+}
+
+#nick-input button {
+    flex: 1;
+    margin: 0 5px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#nick-instructions, #nick-quickjoin {
+    text-align: center;
+}
+
+#nick-instructions span, #nick-quickjoin span {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+    font-size: 14px;
+}
+
+#nick-instructions button, #nick-quickjoin button {
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 5px;
+    margin: 5px;
+}
+
+#nick-quickjoin-preview {
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    border-radius: 10px;
+    margin: 5px 0;
+}
+
+#nick-quickjoin-header {
+    background-color: #888;
+    font-weight: 600;
+    padding: 3px;
+}
+
+#nick-quickjoin-players {
+    background-color: #bbb;
+    padding: 3px;
+}
+
+#lobby-lobbylist {
+    height: 60%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #666;
+    overflow: auto;
+    border-radius: 5px;
+    padding: 8px 0;
+}
+
+#lobby-lobbylist::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+#lobby-lobbylist::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+
+#lobby-lobbylist::-webkit-scrollbar-thumb {
+  background: #b3b3b3;
+  border: none;
+  border-radius: 7px;
+}
+
+#lobby-lobbylist::-webkit-scrollbar-track {
+  background: #555;
+  border: none;
+  border-radius: 10px;
+}
+
+.lobby {
+    background-color: #bbb;
+    width: 80%;
+    margin: 10px 0;
+    padding: 8px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 3px solid rgba(0, 0, 0, 0);
+    transition: border 0.3s;
+}
+
+.lobby.active {
+    border: 3px solid #fff;
+}
+
+.lobby-name {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.lobby-state {
+    float: right;
+}
+
+#lobby-confirm, #prep-bot, #prep-back, #prep-start {
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 6px;
+}
+
+#prep-rounds {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+}
+
+#prep-rounds input {
+    -webkit-appearance: none;
+    width: 50%;
+    height: 5px;
+    opacity: 1;
+    border-radius: 10px;
+    margin: 0;
+}
+
+#prep-rounds input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#prep-rounds input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#prep-rounds label {
+    width: 45%; 
+    display: inline-block;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    text-align: center;
+}
+
+#prep-playerlist {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    background-color: #555;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+.player-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 8px;
+    height: 30px;
+}
+
+.player-entry-name {
+    color: #fff;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+}
+
+.player-entry-kick {
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    font-style: italic;
+    padding: 3px;
+    margin: 5px;
+}
+
+@media screen and (max-width: 1200px), screen and (max-height: 600px) {
+    #startpanel::before {
+        font-size: 50px;
+        font-weight: 700;
+    }
+
+    #nick-header, #lobby-header, #prep-header {
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .lobby.active {
+        border: 3px solid #fff;
+    }
+
+    .lobby-name {
+        font-weight: 600;
+    }
+
+    #lobby-confirm, #prep-bot, #prep-back, #prep-start {
+        padding: 5px;
+    }
+
+    #prep-rounds label {
+        font-size: 14px;
+    }
+
+    #prep-playerlist {
+        padding: 5px 8px;
+    }
+
+    .player-entry {
+        height: 25px;
+    }
+
+    .player-entry-name {
+        font-size: 14px;
+    }
+
+    .player-entry-kick {
+        padding: 2px;
+        margin: 2px;
+    }
+}
+
+@media screen and (max-width: 992px), screen and (max-height: 496px) {
+    #startpanel::before {
+        font-size: 40px;
+    }
+
+    #nick-panel, #lobby-panel, #preparation-panel {
+        border-radius: 15px;
+        margin: 5px;
+        padding: 10px 10px;
+    }
+
+    #nick-header, #lobby-header, #prep-header {
+        font-size: 18px;
+    }
+
+    #nick-input button {
+        font-weight: 500;
+    }
+
+    #nick-instructions button, #nick-quickjoin button {
+        padding: 3px 5px;
+    }
+
+    #nick-quickjoin-header {
+        font-size: 14px;
+    }
+
+    #nick-quickjoin-players {
+        font-size: 14px;
+    }
+
+    #lobby-confirm, #prep-bot, #prep-back, #prep-start {
+        padding: 3px;
+    }
+
+    #prep-rounds input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 15px;
+        height: 15px;
+        border-radius: 10px;
+    }
+
+    #prep-rounds label {
+        font-size: 12px;
+    }
+
+    #prep-playerlist {
+        padding: 3px 5px;
+    }
+
+    .player-entry {
+        height: 22px;
+    }
+
+    .player-entry-name {
+        font-size: 12px;
+        font-weight: 500;
+    }
+}
+
+@media screen and (max-width: 768px), screen and (max-height: 384px) {
+    #startpanel::before {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    #nick-panel, #lobby-panel, #preparation-panel {
+        border: 1px solid #fff;
+        border-radius: 5px;
+        margin: 1px;
+        padding: 3px;
+    }
+
+    #nick-header, #lobby-header, #prep-header {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    #nick-quickjoin-header {
+        font-size: 10px;
+    }
+
+    #nick-quickjoin-players {
+        font-size: 10px;
+    }
+
+    #nick-input input {
+        padding: 2px;
+        font-size: 10px;
+        border-radius: 3px;
+    }
+
+    #nick-input button {
+        margin: 0 2px;
+        border-radius: 3px;
+        font-size: 10px;
+    }
+
+    #nick-instructions span, #nick-quickjoin span {
+        font-size: 10px;
+        display: block;
+    }
+
+    #nick-instructions button, #nick-quickjoin button {
+        border-radius: 3px;
+        padding: 1px 3px;
+        margin: 1px;
+        font-size: 10px;
+        font-weight: 500;
+    }
+
+    #lobby-lobbylist {
+        border-radius: 3px;
+        padding: 3px 0;
+    }
+
+    .lobby {
+        margin: 3px 0;
+        padding: 2px;
+        border-radius: 5px;
+        font-size: 10px;
+        border: 1px solid rgba(0, 0, 0, 0);
+        width: 85%;
+    }
+
+    .lobby.active {
+        border: 1px solid #fff;
+    }
+
+    .lobby-name {
+        font-weight: 500;
+    }
+
+    #lobby-confirm, #prep-bot, #prep-back, #prep-start {
+        border-radius: 3px;
+        font-weight: 500;
+        padding: 0;
+        font-size: 10px;
+    }
+
+    #prep-rounds input {
+        height: 3px;
+        border-radius: 0;
+        width: 45%;
+    }
+
+    #prep-rounds input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    #prep-rounds input::-moz-range-thumb {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    #prep-rounds label {
+        font-size: 8px;
+        width: 50%;
+    }
+
+    #prep-playerlist {
+        padding: 1px 2px;
+        border-radius: 3px;
+    }
+
+    .player-entry {
+        padding: 0;
+        height: 16px;
+    }
+
+    .player-entry-name {
+        font-size: 8px;
+    }
+
+    .player-entry-kick {
+        border-radius: 3px;
+        padding: 1px;
+        margin: 1px;
+        font-size: 10px;
+    }
+}
+
+@media screen and (max-width: 550px), screen and (max-height: 275px) {
+    #nick-quickjoin-preview {
+        display: none;
+    }
+}
