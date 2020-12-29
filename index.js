@@ -1,14 +1,25 @@
 var express = require('express');
-var http = require('http');
+var https = require('https');
 var socketIO = require('socket.io');
+var fs = require('fs');
+var sslConfig = require('./sslConfig.json');
 
 var globalData = require('./data.json');
 
-var app = express();
-var httpServer = http.Server(app);
-var io = socketIO(httpServer);
+let sslCert = fs.readFileSync(sslConfig.cert, 'utf8');
+let privKey = fs.readFileSync(sslConfig.key, 'utf8');
+let credentials = { cert: sslCert, key: privKey };
 
-app.use(express.static('public'));
+var app = express();
+var socketApp = express();
+var httpsServer = https.Server(credentials, socketApp);
+var io = socketIO(httpsServer);
+
+app.use(express.static(__dirname + '/public'));
+socketApp.use(express.static(__dirname + '/node_modules/socket.io-client/dist'));
+socketApp.get('*', (req, res) => res.send('test'));
+
+app.get('/', (req, res) => { res.sendFile(__dirname + '/public/index.html') });
 
 io.on('connection', function (socket) {
     /* console.log('a user connected');
@@ -36,9 +47,9 @@ io.on('connection', function (socket) {
     });
 });
 
-httpServer.listen(2608, function () {
-    console.log('listening...');
-});
+module.exports = app;
+
+httpsServer.listen(2053);
 
 var gamedata = [
     {

@@ -12,7 +12,11 @@
         <script src="start.js"></script>
         <script src="end.js"></script>
         <script src="index.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socketIO = document.createElement('script');
+            socketIO.src = window.location.origin + ':2053/socket.io.js';
+            document.getElementsByTagName('head')[0].appendChild(socketIO);
+        </script>
     </head>
     <body>
         <div id="overlay">Hoppla! Dein Bildschirm ist etwas zu klein! Vielleicht hilft ja Querformat...?</div>

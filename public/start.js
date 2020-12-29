@@ -1,5 +1,5 @@
 function start() {
-    socket = io();
+    socket = io(window.location.origin + ':2053');
     socket.on('request', handleRequest);
     socket.on('info', handleInfo);
     startapp = new Vue({
