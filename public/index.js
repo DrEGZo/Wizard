@@ -164,6 +164,7 @@ function main() {
                     if (cards[winningCard][1] == 'n' && cards[i][1] != 'n') {
                         winningCard = i;
                         startColor = cards[i][0];
+                        if (startColor == this.trump) trumped = true;
                     } else if (cards[winningCard][1] != 'z' && cards[i][1] != 'n') {
                         if (cards[i][1] == 'z') winningCard = i;
                         else if (cards[i][0] == startColor && ((!trumped) || startColor == this.trump) && cards[i][1] > cards[winningCard][1]) winningCard = i;
